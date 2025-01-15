@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Routine Tasks Tracker</string>
+    <string name="title_home">Lists</string>
+    <string name="title_dashboard">Registry</string>
+    <string name="title_notifications">Summary</string>
+    <string name="add_new_task_dialogue">Add New Task</string>
+    <string name="save">Save</string>
+</resources>
