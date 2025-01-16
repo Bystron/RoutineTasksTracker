@@ -28,10 +28,7 @@ class NotificationsFragment : Fragment() {
         _binding = FragmentRegistryBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+
         return root
     }
 

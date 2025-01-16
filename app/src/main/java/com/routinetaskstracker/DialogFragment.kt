@@ -1,65 +1,53 @@
 package com.routinetaskstracker
-import android.app.Activity
+
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.widget.EditText
+import android.view.LayoutInflater
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.snackbar.Snackbar
+import com.routinetaskstracker.databinding.DialogNewTaskBinding
 
-class NewTaskDialogFragment:DialogFragment() {
-
-    interface NewTaskDialogListener{
-        fun onDialogPositiveClick(dialog: DialogFragment, task: String)
-        fun onDialogNegativeClick(dialog: DialogFragment)
-    }
-
-    var newTaskDialogListener: NewTaskDialogListener? = null
+class NewTaskDialogFragment : DialogFragment() {
 
     companion object {
+        const val REQUEST_KEY = "new_task_request_key"
+        const val RESULT_KEY = "new_task_result_key"
         fun newInstance(title: Int): NewTaskDialogFragment {
-
-            val newTaskDialogFragment = NewTaskDialogFragment()
             val args = Bundle()
             args.putInt("dialog_title", title)
-            newTaskDialogFragment.arguments = args
-            return newTaskDialogFragment
+            val fragment = NewTaskDialogFragment()
+            fragment.arguments = args
+            return fragment
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog { // 5
+    private var _binding: DialogNewTaskBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        _binding = DialogNewTaskBinding.inflate(LayoutInflater.from(context))
+
+        val builder = AlertDialog.Builder(requireContext())
         val title = arguments?.getInt("dialog_title")
-        val builder = AlertDialog.Builder(activity)
         title?.let { builder.setTitle(it) }
 
-        val dialogView =
-            activity?.layoutInflater?.inflate(R.layout.dialog_new_task, null)
-        val task = dialogView?.findViewById<EditText>(R.id.tasknameText)
-
-        builder.setView(dialogView)
-            .setPositiveButton(R.string.save, { dialog, id ->
-                newTaskDialogListener?.onDialogPositiveClick(this,
-                    task?.text.toString());
-
-                if (dialogView != null) {
-                    Snackbar.make(dialogView, "Task Added Successfully", Snackbar.LENGTH_LONG).setAction("Action", null).show()
+        builder.setView(binding.root)
+            .setPositiveButton(R.string.save) { _, _ ->
+                val taskName = binding.tasknameText.text.toString().trim()
+                if (taskName.isNotEmpty()) {
+                    parentFragmentManager.setFragmentResult(
+                        REQUEST_KEY,
+                        Bundle().apply { putString(RESULT_KEY, taskName) }
+                    )
                 }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
 
-            })
-            .setNegativeButton(android.R.string.cancel, { dialog,
-                                                          id ->
-                newTaskDialogListener?.onDialogNegativeClick(this)
-            })
         return builder.create()
     }
 
-    override fun onAttach(activity: Activity) { // 6
-        super.onAttach(activity)
-        try {
-            newTaskDialogListener = activity as NewTaskDialogListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity.toString() + " must implement NewTaskDialogListener")
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
-
 }
